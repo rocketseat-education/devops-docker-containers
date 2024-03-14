@@ -4,6 +4,8 @@ services:
   mysql:
     image: mysql:8
     container_name: mysql
+    volumes:
+      - db:/var/lib/mysql
     ports:
       - 3306:3306
     environment:
@@ -28,3 +30,6 @@ services:
 networks:
   primeira-network:
     driver: bridge
+
+volumes:
+  db:
