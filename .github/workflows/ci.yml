@@ -9,17 +9,19 @@ jobs:
   build:
     name: 'Build and Push'
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: [16, 18, 20]
+    # strategy:
+    #   # matrix:
+    #   #   node: [16, 18, 20]
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Setup node | ${{ matrix.node }}
+    # - name: Setup node | ${{ matrix.node }}
+    - name: Setup node
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ matrix.node }}
+        # node-version: ${{ matrix.node }}
+        node-version: 18
         cache: 'yarn'
     - run: yarn
     - run: yarn run test
@@ -30,5 +32,14 @@ jobs:
         SHA=$(echo $GITHUB_SHA | head -c7)
         echo "sha=$SHA" >> $GITHUB_OUTPUT
       
+    - name: Login into the container registry
+      uses : docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
     - name: Build
-      run: docker build -t rocketseat-ci-api:${{ steps.generate_tag.outputs.sha }} . 
+      run: docker build -t danielrodriguess/rocketseat-ci-api:${{ steps.generate_tag.outputs.sha }} . 
+
+    - name: Push image
+      run: docker push danielrodriguess/rocketseat-ci-api:${{ steps.generate_tag.outputs.sha }} 
