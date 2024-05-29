@@ -54,10 +54,13 @@ jobs:
       run: |
         docker build -t $REGISTRY/rocketseat-ci:$TAG .
         docker push $REGISTRY/rocketseat-ci:$TAG
+        docker tag -t $REGISTRY/rocketseat-ci:$TAG $REGISTRY/rocketseat-ci:latest
+        docker push $REGISTRY/rocketseat-ci:latest
         IMAGE=$(echo $REGISTRY/rocketseat-ci:$TAG)
         echo "image=$IMAGE" >> $GITHUB_OUTPUT
 
     - name: Deploy to app runner
+      id: deploy-app-runner
       uses: awslabs/amazon-app-runner-deploy@main
       with:
         service: rocketseat-api
@@ -67,6 +70,7 @@ jobs:
         cpu: 1
         memory: 2
         port: 3000
+        wait-for-service-stability-seconds: 180
 
-    # - name: Push image
-    #   run: docker push danielrodriguess/rocketseat-ci-api:${{ steps.generate_tag.outputs.sha }} 
+    - name: App Runner check
+      run: echo "App Runner running... ${{ steps.deploy-app-runner.outputs.service-url }}"
