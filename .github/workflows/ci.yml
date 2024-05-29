@@ -30,6 +30,11 @@ jobs:
     - run: yarn
     - run: yarn run test
 
+    - name: Semantic release
+      uses: cycjimmy/semantic-release-action@v4
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
     - name: Generate tag
       id: generate_tag 
       run: |
